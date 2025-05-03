@@ -15,9 +15,10 @@
         <h1 class="text-4xl font-bold mb-8 text-center">D&D 5e Spell Finder</h1>
 
         <!-- Search Box -->
-        <div class="flex justify-center mb-4">
+        <form id="searchForm" class="flex justify-center mb-4">
             <input type="text" id="searchBox" placeholder="Search spells..." class="p-2 border border-gray-300 rounded-lg w-1/2" />
-        </div>
+            <button type="submit" class="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Search</button>
+        </form>
 
         <!-- Filters -->
         <div class="flex justify-center mb-4 space-x-4">
@@ -55,8 +56,11 @@
         const spells = [
             { name: "Cure Wounds", class: "cleric", level: 1, range: "Touch", casting_time: "1 action", damage: "Healing", save: "-", description: "Heals a creature you touch." },
             { name: "Magic Missile", class: "wizard", level: 1, range: "120 feet", casting_time: "1 action", damage: "1d4+1", save: "-", description: "A missile of magical energy darts forward." },
-            { name: "Healing Word", class: "cleric", level: 1, range: "60 feet", casting_time: "1 bonus action", damage: "Healing", save: "-", description: "A creature you can see regains hit points." },
-            // Add more spells for testing
+            { name: "Fireball", class: "sorcerer", level: 3, range: "150 feet", casting_time: "1 action", damage: "6d6", save: "Dexterity", description: "A bright streak flashes from your pointing finger to a point you choose within range." },
+            { name: "Lightning Bolt", class: "wizard", level: 3, range: "150 feet", casting_time: "1 action", damage: "8d6", save: "Dexterity", description: "A bolt of lightning flashes from your pointing finger." },
+            { name: "Shield", class: "sorcerer", level: 1, range: "Self", casting_time: "1 reaction", damage: "-", save: "-", description: "An invisible barrier of magical force appears and protects you." },
+            { name: "Invisibility", class: "wizard", level: 2, range: "Touch", casting_time: "1 action", damage: "-", save: "-", description: "A creature you touch becomes invisible until the spell ends." },
+            { name: "Heal", class: "cleric", level: 6, range: "60 feet", casting_time: "1 action", damage: "-", save: "-", description: "You cause a creature you can see to regain hit points." }
         ];
 
         let bookmarkedSpells = JSON.parse(localStorage.getItem('bookmarkedSpells')) || [];
@@ -64,15 +68,16 @@
         // Function to display spells
         function displaySpells(filteredSpells) {
             const spellResultsDiv = document.getElementById('spellResults');
-            spellResultsDiv.innerHTML = '';  // Clear previous results
+            spellResultsDiv.innerHTML = '';
 
             if (filteredSpells.length === 0) {
-                spellResultsDiv.innerHTML = '<p>No spells found matching the criteria.</p>';
+                spellResultsDiv.innerHTML = '<p class="text-gray-500">No spells found matching the criteria.</p>';
+                return;
             }
 
             filteredSpells.forEach(spell => {
                 const spellDiv = document.createElement('div');
-                spellDiv.classList.add('bg-white', 'p-4', 'rounded-lg', 'shadow-lg');
+                spellDiv.classList.add('bg-white', 'p-4', 'rounded-lg', 'shadow-lg', 'mb-4');
 
                 // Create the bookmark button (if not already bookmarked)
                 const isBookmarked = bookmarkedSpells.includes(spell.name);
@@ -99,35 +104,36 @@
 
         // Function to filter spells based on selected checkboxes and search
         function filterSpells() {
-            let filteredSpells = spells; // Start with all spells
+            let filteredSpells = spells;
 
             // Get search term
             const searchTerm = document.getElementById('searchBox').value.toLowerCase();
 
             // Filter by search term
             if (searchTerm) {
-                filteredSpells = filteredSpells.filter(spell => spell.name.toLowerCase().includes(searchTerm));
+                filteredSpells = filteredSpells.filter(spell => 
+                    spell.name.toLowerCase().includes(searchTerm) ||
+                    spell.class.toLowerCase().includes(searchTerm) ||
+                    spell.description.toLowerCase().includes(searchTerm)
+                );
             }
 
             // Get selected classes
             const selectedClasses = Array.from(document.querySelectorAll('input.class-filter:checked'))
                 .map(checkbox => checkbox.value);
 
-            // Get selected levels
-            const selectedLevels = Array.from(document.querySelectorAll('input.level-filter:checked'))
-                .map(checkbox => parseInt(checkbox.value));
-
-            // Filter by class
             if (selectedClasses.length > 0) {
                 filteredSpells = filteredSpells.filter(spell => selectedClasses.includes(spell.class));
             }
 
-            // Filter by level
+            // Get selected levels
+            const selectedLevels = Array.from(document.querySelectorAll('input.level-filter:checked'))
+                .map(checkbox => parseInt(checkbox.value));
+
             if (selectedLevels.length > 0) {
                 filteredSpells = filteredSpells.filter(spell => selectedLevels.includes(spell.level));
             }
 
-            // Display filtered spells
             displaySpells(filteredSpells);
         }
 
@@ -135,18 +141,24 @@
         function toggleBookmark(spell) {
             const index = bookmarkedSpells.indexOf(spell.name);
             if (index === -1) {
-                bookmarkedSpells.push(spell.name); // Add to bookmarks
+                bookmarkedSpells.push(spell.name);
             } else {
-                bookmarkedSpells.splice(index, 1); // Remove from bookmarks
+                bookmarkedSpells.splice(index, 1);
             }
 
-            localStorage.setItem('bookmarkedSpells', JSON.stringify(bookmarkedSpells)); // Save to local storage
-            filterSpells(); // Reapply filters and display updated list
+            localStorage.setItem('bookmarkedSpells', JSON.stringify(bookmarkedSpells));
+            filterSpells();
         }
 
         // Add event listeners for checkboxes and search box
-        document.querySelectorAll('input[type="checkbox"], #searchBox').forEach(element => {
+        document.querySelectorAll('input[type="checkbox"]').forEach(element => {
             element.addEventListener('change', filterSpells);
+        });
+
+        // Handle search form submission
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            filterSpells();
         });
 
         // Initial display of all spells
