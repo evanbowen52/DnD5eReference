@@ -1,165 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>D&D 5e Spell Browser</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D 5e Spell Filter</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.3/dist/tailwind.min.js"></script>
+    <style>
+        /* You can add custom styles here */
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body class="bg-gray-100 text-gray-900">
+    <div class="container mx-auto py-8">
+        <h1 class="text-4xl font-bold mb-8 text-center">D&D 5e Spell Finder</h1>
 
-  <header class="bg-indigo-700 text-white p-4 text-center text-2xl font-bold">
-    D&D 5e Spell Browser
-  </header>
+        <!-- Filters -->
+        <div class="flex justify-center mb-4 space-x-4">
+            <div>
+                <h3 class="text-xl font-semibold">Filter by Class:</h3>
+                <div>
+                    <input type="checkbox" id="bard" value="bard" class="class-filter"> Bard
+                    <input type="checkbox" id="cleric" value="cleric" class="class-filter"> Cleric
+                    <input type="checkbox" id="druid" value="druid" class="class-filter"> Druid
+                    <input type="checkbox" id="fighter" value="fighter" class="class-filter"> Fighter
+                    <!-- Add more classes here if needed -->
+                </div>
+            </div>
 
-  <main class="flex flex-col gap-4 p-4 flex-grow">
+            <div>
+                <h3 class="text-xl font-semibold">Filter by Level:</h3>
+                <div>
+                    <input type="checkbox" id="level1" value="1" class="level-filter"> Level 1
+                    <input type="checkbox" id="level2" value="2" class="level-filter"> Level 2
+                    <input type="checkbox" id="level3" value="3" class="level-filter"> Level 3
+                    <input type="checkbox" id="level4" value="4" class="level-filter"> Level 4
+                    <!-- Add more levels here if needed -->
+                </div>
+            </div>
+        </div>
 
-    <!-- Search Box -->
-    <div class="flex gap-2">
-      <input id="searchInput" type="text" placeholder="Search spells..."
-        class="flex-grow p-2 rounded border focus:outline-none focus:ring-2 focus:ring-indigo-400">
-      <button onclick="searchSpells()" 
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
-        Search
-      </button>
+        <!-- Spell Results -->
+        <div id="spellResults" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- Spells will be displayed here -->
+        </div>
     </div>
 
-    <!-- Filters -->
-    <div id="filters" class="flex flex-wrap gap-2">
-      <!-- Example checkbox: we'll dynamically create these later if you want -->
-    </div>
+    <script>
+        // Sample data structure for spells (you can replace it with actual API data)
+        const spells = [
+            { name: "Cure Wounds", class: "cleric", level: 1, range: "Touch", casting_time: "1 action", damage: "Healing", save: "-", description: "Heals a creature you touch." },
+            { name: "Magic Missile", class: "wizard", level: 1, range: "120 feet", casting_time: "1 action", damage: "1d4+1", save: "-", description: "A missile of magical energy darts forward." },
+            { name: "Healing Word", class: "cleric", level: 1, range: "60 feet", casting_time: "1 bonus action", damage: "Healing", save: "-", description: "A creature you can see regains hit points." },
+            // Add more sample spells here
+        ];
 
-    <!-- Results Grid -->
-    <section id="results" class="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3"></section>
+        // Function to display spells
+        function displaySpells(filteredSpells) {
+            const spellResultsDiv = document.getElementById('spellResults');
+            spellResultsDiv.innerHTML = '';  // Clear previous results
 
-    <!-- Bookmarks Section -->
-    <section>
-      <h2 class="text-xl font-bold my-4">📚 Bookmarked Spells</h2>
-      <div id="bookmarks" class="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3"></div>
-    </section>
+            filteredSpells.forEach(spell => {
+                const spellDiv = document.createElement('div');
+                spellDiv.classList.add('bg-white', 'p-4', 'rounded-lg', 'shadow-lg');
 
-  </main>
+                spellDiv.innerHTML = `
+                    <h4 class="font-bold text-lg">${spell.name}</h4>
+                    <p><strong>Class:</strong> ${spell.class}</p>
+                    <p><strong>Level:</strong> ${spell.level}</p>
+                    <p><strong>Range:</strong> ${spell.range}</p>
+                    <p><strong>Casting Time:</strong> ${spell.casting_time}</p>
+                    <p><strong>Damage:</strong> ${spell.damage}</p>
+                    <p><strong>Save:</strong> ${spell.save}</p>
+                    <p><strong>Description:</strong> ${spell.description}</p>
+                `;
 
-  <footer class="bg-gray-200 text-center text-sm p-2">
-    Made with 💬 and 🎲
-  </footer>
+                spellResultsDiv.appendChild(spellDiv);
+            });
+        }
 
-  <script>
-    const apiBase = "https://www.dnd5eapi.co/api";
+        // Function to filter spells based on selected checkboxes
+        function filterSpells() {
+            let filteredSpells = spells; // Start with all spells
 
-    async function searchSpells() {
-      const query = document.getElementById('searchInput').value.trim().toLowerCase();
-      const res = await fetch(`${apiBase}/spells`);
-      const data = await res.json();
+            // Get selected classes
+            const selectedClasses = Array.from(document.querySelectorAll('input.class-filter:checked'))
+                .map(checkbox => checkbox.value);
 
-      let spells = data.results;
+            // Get selected levels
+            const selectedLevels = Array.from(document.querySelectorAll('input.level-filter:checked'))
+                .map(checkbox => parseInt(checkbox.value));
 
-      if (query) {
-        spells = spells.filter(spell => spell.name.toLowerCase().includes(query));
-      }
+            // Filter by class
+            if (selectedClasses.length > 0) {
+                filteredSpells = filteredSpells.filter(spell => selectedClasses.includes(spell.class));
+            }
 
-      displayResults(spells);
-    }
+            // Filter by level
+            if (selectedLevels.length > 0) {
+                filteredSpells = filteredSpells.filter(spell => selectedLevels.includes(spell.level));
+            }
 
-    async function displayResults(spells) {
-      const results = document.getElementById('results');
-      results.innerHTML = '';
+            // Display filtered spells
+            displaySpells(filteredSpells);
+        }
 
-      for (const spell of spells) {
-        const res = await fetch(`${apiBase}/spells/${spell.index}`);
-        const fullSpell = await res.json();
-
-        const div = document.createElement('div');
-        div.className = "bg-white p-4 rounded shadow hover:shadow-lg transition";
-
-        div.innerHTML = `
-          <h3 class="text-lg font-bold text-indigo-700 mb-2">${fullSpell.name}</h3>
-          <ul class="text-sm text-gray-700 space-y-1">
-            <li><strong>Level:</strong> ${fullSpell.level}</li>
-            <li><strong>Classes:</strong> ${fullSpell.classes.map(c => c.name).join(', ')}</li>
-            <li><strong>Range:</strong> ${fullSpell.range}</li>
-            <li><strong>Casting Time:</strong> ${fullSpell.casting_time}</li>
-            <li><strong>Damage:</strong> ${fullSpell.damage ? formatDamage(fullSpell.damage) : '—'}</li>
-            <li><strong>Save DC:</strong> ${fullSpell.dc ? fullSpell.dc.dc_type.name : '—'}</li>
-            <li><strong>Desc:</strong> ${shorten(fullSpell.desc.join(' '), 120)}</li>
-          </ul>
-          <div class="mt-3 flex gap-2">
-            <button onclick='viewDetails("${fullSpell.index}")'
-              class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 text-xs">
-              View
-            </button>
-            <button onclick='bookmarkSpell(${JSON.stringify({ name: fullSpell.name, index: fullSpell.index })})'
-              class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 text-xs">
-              Bookmark
-            </button>
-          </div>
-        `;
-        results.appendChild(div);
-      }
-    }
-
-    function shorten(text, maxLength) {
-      return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
-    }
-
-    function formatDamage(damageObj) {
-      if (damageObj.damage_at_slot_level) {
-        const entries = Object.entries(damageObj.damage_at_slot_level);
-        return entries.map(([level, dmg]) => `${level}: ${dmg}`).join(', ');
-      }
-      return '—';
-    }
-
-    function viewDetails(index) {
-      fetch(`${apiBase}/spells/${index}`)
-        .then(res => res.json())
-        .then(spell => {
-          alert(`
-${spell.name}
-
-Level: ${spell.level}
-Range: ${spell.range}
-Duration: ${spell.duration}
-Casting Time: ${spell.casting_time}
-Components: ${spell.components.join(', ')}
-
-${spell.desc.join('\n\n')}
-          `);
+        // Add event listeners for checkboxes
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', filterSpells);
         });
-    }
 
-    function bookmarkSpell(spell) {
-      let bookmarks = JSON.parse(localStorage.getItem('bookmarkedSpells')) || [];
-      if (!bookmarks.some(b => b.index === spell.index)) {
-        bookmarks.push(spell);
-        localStorage.setItem('bookmarkedSpells', JSON.stringify(bookmarks));
-        loadBookmarks();
-      }
-    }
-
-    function loadBookmarks() {
-      const bookmarks = JSON.parse(localStorage.getItem('bookmarkedSpells')) || [];
-      const container = document.getElementById('bookmarks');
-      container.innerHTML = '';
-
-      bookmarks.forEach(spell => {
-        const div = document.createElement('div');
-        div.className = "bg-white p-4 rounded shadow hover:shadow-lg transition";
-
-        div.innerHTML = `
-          <h3 class="text-lg font-bold text-green-700 mb-2">${spell.name}</h3>
-          <button onclick='viewDetails("${spell.index}")'
-            class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 text-xs">
-            View
-          </button>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    // Load bookmarks immediately on page load
-    window.onload = loadBookmarks;
-  </script>
-
+        // Initial display of all spells
+        displaySpells(spells);
+    </script>
 </body>
 </html>
