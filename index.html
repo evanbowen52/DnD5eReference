@@ -52,118 +52,175 @@
     </div>
 
     <script>
-        // Sample data structure for spells (replace with actual API data if available)
-        const spells = [
-            { name: "Cure Wounds", class: "cleric", level: 1, range: "Touch", casting_time: "1 action", damage: "Healing", save: "-", description: "Heals a creature you touch." },
-            { name: "Magic Missile", class: "wizard", level: 1, range: "120 feet", casting_time: "1 action", damage: "1d4+1", save: "-", description: "A missile of magical energy darts forward." },
-            { name: "Fireball", class: "sorcerer", level: 3, range: "150 feet", casting_time: "1 action", damage: "6d6", save: "Dexterity", description: "A bright streak flashes from your pointing finger to a point you choose within range." },
-            { name: "Lightning Bolt", class: "wizard", level: 3, range: "150 feet", casting_time: "1 action", damage: "8d6", save: "Dexterity", description: "A bolt of lightning flashes from your pointing finger." },
-            { name: "Shield", class: "sorcerer", level: 1, range: "Self", casting_time: "1 reaction", damage: "-", save: "-", description: "An invisible barrier of magical force appears and protects you." },
-            { name: "Invisibility", class: "wizard", level: 2, range: "Touch", casting_time: "1 action", damage: "-", save: "-", description: "A creature you touch becomes invisible until the spell ends." },
-            { name: "Heal", class: "cleric", level: 6, range: "60 feet", casting_time: "1 action", damage: "-", save: "-", description: "You cause a creature you can see to regain hit points." }
-        ];
-
-        let bookmarkedSpells = JSON.parse(localStorage.getItem('bookmarkedSpells')) || [];
-
-        // Function to display spells
-        function displaySpells(filteredSpells) {
-            const spellResultsDiv = document.getElementById('spellResults');
-            spellResultsDiv.innerHTML = '';
-
-            if (filteredSpells.length === 0) {
-                spellResultsDiv.innerHTML = '<p class="text-gray-500">No spells found matching the criteria.</p>';
-                return;
+        // Function to fetch spells from API
+        async function fetchSpells() {
+            try {
+                const response = await axios.get('https://www.dnd5eapi.co/api/spells');
+                return response.data.results;
+            } catch (error) {
+                console.error('Error fetching spells:', error);
+                return [];
             }
-
-            // Display all filtered spells without limit
-            filteredSpells.forEach(spell => {
-                const spellDiv = document.createElement('div');
-                spellDiv.classList.add('bg-white', 'p-4', 'rounded-lg', 'shadow-lg', 'mb-4');
-
-                // Create the bookmark button (if not already bookmarked)
-                const isBookmarked = bookmarkedSpells.includes(spell.name);
-                const bookmarkButton = document.createElement('button');
-                bookmarkButton.textContent = isBookmarked ? 'Remove Bookmark' : 'Bookmark';
-                bookmarkButton.classList.add('text-blue-500', 'hover:text-blue-700', 'mt-2');
-                bookmarkButton.onclick = () => toggleBookmark(spell);
-
-                spellDiv.innerHTML = `
-                    <h4 class="font-bold text-lg">${spell.name}</h4>
-                    <p><strong>Class:</strong> ${spell.class}</p>
-                    <p><strong>Level:</strong> ${spell.level}</p>
-                    <p><strong>Range:</strong> ${spell.range}</p>
-                    <p><strong>Casting Time:</strong> ${spell.casting_time}</p>
-                    <p><strong>Damage:</strong> ${spell.damage}</p>
-                    <p><strong>Save:</strong> ${spell.save}</p>
-                    <p><strong>Description:</strong> ${spell.description}</p>
-                `;
-                
-                spellDiv.appendChild(bookmarkButton);
-                spellResultsDiv.appendChild(spellDiv);
-            });
         }
 
-        // Function to filter spells based on selected checkboxes and search
-        function filterSpells() {
-            let filteredSpells = spells;
+        // Function to fetch spell details
+        async function fetchSpellDetails(spell) {
+            try {
+                const response = await axios.get(`https://www.dnd5eapi.co${spell.url}`);
+                return response.data;
+            } catch (error) {
+                console.error('Error fetching spell details:', error);
+                return null;
+            }
+        }
 
-            // Get search term
-            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+        // Function to initialize the app
+        async function initializeApp() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.innerHTML = '<p class="text-center text-gray-500">Loading spells...</p>';
+            document.getElementById('spellResults').appendChild(loadingDiv);
 
-            // Filter by search term
-            if (searchTerm) {
-                filteredSpells = filteredSpells.filter(spell => 
-                    spell.name.toLowerCase().includes(searchTerm) ||
-                    spell.class.toLowerCase().includes(searchTerm) ||
-                    spell.description.toLowerCase().includes(searchTerm)
+            try {
+                const spells = await fetchSpells();
+                // Fetch details for each spell
+                const spellsWithDetails = await Promise.all(
+                    spells.map(async spell => {
+                        const details = await fetchSpellDetails(spell);
+                        return {
+                            name: details.name,
+                            class: details.classes?.map(c => c.name).join(', ') || 'Unknown',
+                            level: details.level,
+                            range: details.range,
+                            casting_time: details.casting_time,
+                            damage: details.damage?.damage_type?.name || '-',
+                            save: details.save?.name || '-',
+                            description: details.desc?.join(' ') || 'No description available'
+                        };
+                    })
                 );
+
+                // Store spells in localStorage for offline access
+                localStorage.setItem('spells', JSON.stringify(spellsWithDetails));
+                
+                // Initialize with fetched spells
+                initializeSpells(spellsWithDetails);
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                // Fallback to cached spells if available
+                const cachedSpells = JSON.parse(localStorage.getItem('spells')) || [];
+                initializeSpells(cachedSpells);
             }
-
-            // Get selected classes
-            const selectedClasses = Array.from(document.querySelectorAll('input.class-filter:checked'))
-                .map(checkbox => checkbox.value);
-
-            if (selectedClasses.length > 0) {
-                filteredSpells = filteredSpells.filter(spell => selectedClasses.includes(spell.class));
-            }
-
-            // Get selected levels
-            const selectedLevels = Array.from(document.querySelectorAll('input.level-filter:checked'))
-                .map(checkbox => parseInt(checkbox.value));
-
-            if (selectedLevels.length > 0) {
-                filteredSpells = filteredSpells.filter(spell => selectedLevels.includes(spell.level));
-            }
-
-            displaySpells(filteredSpells);
         }
 
-        // Toggle bookmark status for a spell
-        function toggleBookmark(spell) {
-            const index = bookmarkedSpells.indexOf(spell.name);
-            if (index === -1) {
-                bookmarkedSpells.push(spell.name);
-            } else {
-                bookmarkedSpells.splice(index, 1);
+        // Function to initialize spells
+        function initializeSpells(spells) {
+            window.spells = spells;
+            let bookmarkedSpells = JSON.parse(localStorage.getItem('bookmarkedSpells')) || [];
+
+            // Function to display spells
+            function displaySpells(filteredSpells) {
+                const spellResultsDiv = document.getElementById('spellResults');
+                spellResultsDiv.innerHTML = '';
+
+                if (filteredSpells.length === 0) {
+                    spellResultsDiv.innerHTML = '<p class="text-gray-500">No spells found matching the criteria.</p>';
+                    return;
+                }
+
+                filteredSpells.forEach(spell => {
+                    const spellDiv = document.createElement('div');
+                    spellDiv.classList.add('bg-white', 'p-4', 'rounded-lg', 'shadow-lg', 'mb-4');
+
+                    // Create the bookmark button (if not already bookmarked)
+                    const isBookmarked = bookmarkedSpells.includes(spell.name);
+                    const bookmarkButton = document.createElement('button');
+                    bookmarkButton.textContent = isBookmarked ? 'Remove Bookmark' : 'Bookmark';
+                    bookmarkButton.classList.add('text-blue-500', 'hover:text-blue-700', 'mt-2');
+                    bookmarkButton.onclick = () => toggleBookmark(spell);
+
+                    spellDiv.innerHTML = `
+                        <h4 class="font-bold text-lg">${spell.name}</h4>
+                        <p><strong>Class:</strong> ${spell.class}</p>
+                        <p><strong>Level:</strong> ${spell.level}</p>
+                        <p><strong>Range:</strong> ${spell.range}</p>
+                        <p><strong>Casting Time:</strong> ${spell.casting_time}</p>
+                        <p><strong>Damage:</strong> ${spell.damage}</p>
+                        <p><strong>Save:</strong> ${spell.save}</p>
+                        <p><strong>Description:</strong> ${spell.description}</p>
+                    `;
+                    
+                    spellDiv.appendChild(bookmarkButton);
+                    spellResultsDiv.appendChild(spellDiv);
+                });
             }
 
-            localStorage.setItem('bookmarkedSpells', JSON.stringify(bookmarkedSpells));
-            filterSpells();
+            // Function to filter spells based on selected checkboxes and search
+            function filterSpells() {
+                let filteredSpells = spells;
+
+                // Get search term
+                const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+
+                // Filter by search term
+                if (searchTerm) {
+                    filteredSpells = filteredSpells.filter(spell => 
+                        spell.name.toLowerCase().includes(searchTerm) ||
+                        spell.class.toLowerCase().includes(searchTerm) ||
+                        spell.description.toLowerCase().includes(searchTerm)
+                    );
+                }
+
+                // Get selected classes
+                const selectedClasses = Array.from(document.querySelectorAll('input.class-filter:checked'))
+                    .map(checkbox => checkbox.value);
+
+                if (selectedClasses.length > 0) {
+                    filteredSpells = filteredSpells.filter(spell => 
+                        spell.class.toLowerCase().includes(selectedClasses.join(','))
+                    );
+                }
+
+                // Get selected levels
+                const selectedLevels = Array.from(document.querySelectorAll('input.level-filter:checked'))
+                    .map(checkbox => parseInt(checkbox.value));
+
+                if (selectedLevels.length > 0) {
+                    filteredSpells = filteredSpells.filter(spell => selectedLevels.includes(spell.level));
+                }
+
+                displaySpells(filteredSpells);
+            }
+
+            // Toggle bookmark status for a spell
+            function toggleBookmark(spell) {
+                const index = bookmarkedSpells.indexOf(spell.name);
+                if (index === -1) {
+                    bookmarkedSpells.push(spell.name);
+                } else {
+                    bookmarkedSpells.splice(index, 1);
+                }
+
+                localStorage.setItem('bookmarkedSpells', JSON.stringify(bookmarkedSpells));
+                filterSpells();
+            }
+
+            // Add event listeners for checkboxes and search box
+            document.querySelectorAll('input[type="checkbox"]').forEach(element => {
+                element.addEventListener('change', filterSpells);
+            });
+
+            // Handle search form submission
+            document.getElementById('searchForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                filterSpells();
+            });
+
+            // Initial display of all spells
+            displaySpells(spells);
         }
 
-        // Add event listeners for checkboxes and search box
-        document.querySelectorAll('input[type="checkbox"]').forEach(element => {
-            element.addEventListener('change', filterSpells);
-        });
-
-        // Handle search form submission
-        document.getElementById('searchForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            filterSpells();
-        });
-
-        // Initial display of all spells
-        displaySpells(spells);
+        // Initialize the app
+        initializeApp();
     </script>
 </body>
 </html>
