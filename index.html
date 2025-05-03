@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D&D 5e Spell Filter</title>
+    <title>D&D 5e Spell Finder</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.3/dist/tailwind.min.js"></script>
     <style>
@@ -13,6 +13,11 @@
 <body class="bg-gray-100 text-gray-900">
     <div class="container mx-auto py-8">
         <h1 class="text-4xl font-bold mb-8 text-center">D&D 5e Spell Finder</h1>
+
+        <!-- Search Box -->
+        <div class="flex justify-center mb-4">
+            <input type="text" id="searchBox" placeholder="Search spells..." class="p-2 border border-gray-300 rounded-lg w-1/2" />
+        </div>
 
         <!-- Filters -->
         <div class="flex justify-center mb-4 space-x-4">
@@ -54,6 +59,8 @@
             // Add more sample spells here
         ];
 
+        let bookmarkedSpells = JSON.parse(localStorage.getItem('bookmarkedSpells')) || [];
+
         // Function to display spells
         function displaySpells(filteredSpells) {
             const spellResultsDiv = document.getElementById('spellResults');
@@ -62,6 +69,13 @@
             filteredSpells.forEach(spell => {
                 const spellDiv = document.createElement('div');
                 spellDiv.classList.add('bg-white', 'p-4', 'rounded-lg', 'shadow-lg');
+
+                // Create the bookmark button (if not already bookmarked)
+                const isBookmarked = bookmarkedSpells.includes(spell.name);
+                const bookmarkButton = document.createElement('button');
+                bookmarkButton.textContent = isBookmarked ? 'Remove Bookmark' : 'Bookmark';
+                bookmarkButton.classList.add('text-blue-500', 'hover:text-blue-700', 'mt-2');
+                bookmarkButton.onclick = () => toggleBookmark(spell);
 
                 spellDiv.innerHTML = `
                     <h4 class="font-bold text-lg">${spell.name}</h4>
@@ -73,14 +87,23 @@
                     <p><strong>Save:</strong> ${spell.save}</p>
                     <p><strong>Description:</strong> ${spell.description}</p>
                 `;
-
+                
+                spellDiv.appendChild(bookmarkButton);
                 spellResultsDiv.appendChild(spellDiv);
             });
         }
 
-        // Function to filter spells based on selected checkboxes
+        // Function to filter spells based on selected checkboxes and search
         function filterSpells() {
             let filteredSpells = spells; // Start with all spells
+
+            // Get search term
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+
+            // Filter by search term
+            if (searchTerm) {
+                filteredSpells = filteredSpells.filter(spell => spell.name.toLowerCase().includes(searchTerm));
+            }
 
             // Get selected classes
             const selectedClasses = Array.from(document.querySelectorAll('input.class-filter:checked'))
@@ -104,9 +127,22 @@
             displaySpells(filteredSpells);
         }
 
-        // Add event listeners for checkboxes
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', filterSpells);
+        // Toggle bookmark status for a spell
+        function toggleBookmark(spell) {
+            const index = bookmarkedSpells.indexOf(spell.name);
+            if (index === -1) {
+                bookmarkedSpells.push(spell.name); // Add to bookmarks
+            } else {
+                bookmarkedSpells.splice(index, 1); // Remove from bookmarks
+            }
+
+            localStorage.setItem('bookmarkedSpells', JSON.stringify(bookmarkedSpells)); // Save to local storage
+            filterSpells(); // Reapply filters and display updated list
+        }
+
+        // Add event listeners for checkboxes and search box
+        document.querySelectorAll('input[type="checkbox"], #searchBox').forEach(element => {
+            element.addEventListener('change', filterSpells);
         });
 
         // Initial display of all spells
