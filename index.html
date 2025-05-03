@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D&D 5e Spell Browser</title>
+  <!-- Load Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 p-4">
+  <div class="max-w-3xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6 text-center">D&D 5e Spell Browser</h1>
+
+    <!-- Search box -->
+    <div class="flex mb-6">
+      <input id="searchInput" type="text" placeholder="Search for a spell..."
+        class="flex-grow border border-gray-300 rounded-l-lg p-2 focus:outline-none">
+      <button onclick="searchSpells()"
+        class="bg-blue-500 text-white px-4 rounded-r-lg hover:bg-blue-600">
+        Search
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white p-4 rounded shadow mb-6">
+      <h3 class="font-semibold mb-2">Filter by Class</h3>
+      <div id="classFilters" class="flex flex-wrap gap-4 mb-4"></div>
+
+      <h3 class="font-semibold mb-2">Filter by Spell Level</h3>
+      <div id="levelFilters" class="flex flex-wrap gap-4"></div>
+    </div>
+
+    <!-- Results -->
+    <h2 class="text-xl font-semibold mb-2">Search Results</h2>
+    <div id="results" class="space-y-3 mb-8"></div>
+
+    <!-- Bookmarks -->
+    <h2 class="text-xl font-semibold mb-2">Bookmarked Spells</h2>
+    <div id="bookmarks" class="space-y-3"></div>
+  </div>
+
+  <script>
+    const apiBase = 'https://www.dnd5eapi.co/api';
+    const classes = ["Bard", "Cleric", "Druid", "Paladin", "Ranger", "Sorcerer", "Warlock", "Wizard", "Artificer"];
+    const levels = Array.from({ length: 10 }, (_, i) => i); // 0 to 9
+
+    function createFilters() {
+      const classFilters = document.getElementById('classFilters');
+      classes.forEach(cls => {
+        classFilters.innerHTML += `
+          <label class="flex items-center space-x-1">
+            <input type="checkbox" value="${cls.toLowerCase()}" class="class-filter">
+            <span>${cls}</span>
+          </label>
+        `;
+      });
+
+      const levelFilters = document.getElementById('levelFilters');
+      levels.forEach(lvl => {
+        levelFilters.innerHTML += `
+          <label class="flex items-center space-x-1">
+            <input type="checkbox" value="${lvl}" class="level-filter">
+            <span>${lvl === 0 ? "Cantrip" : `Level ${lvl}`}</span>
+          </label>
+        `;
+      });
+    }
+
+    function searchSpells() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const selectedClasses = Array.from(document.querySelectorAll('.class-filter:checked')).map(cb => cb.value);
+      const selectedLevels = Array.from(document.querySelectorAll('.level-filter:checked')).map(cb => parseInt(cb.value));
+
+      fetch(`${apiBase}/spells`)
+        .then(response => response.json())
+        .then(data => {
+          let results = data.results;
+
+          // If a search query exists, filter by name
+          if (query) {
+            results = results.filter(spell => spell.name.toLowerCase().includes(query));
+          }
+
+          // If filters are selected, fetch full spell data to check details
+          if (selectedClasses.length > 0 || selectedLevels.length > 0) {
+            Promise.all(
+              results.map(spell => fetch(`${apiBase}/spells/${spell.index}`).then(res => res.json()))
+            ).then(fullSpells => {
+              const filtered = fullSpells.filter(spell => {
+                const matchesClass = selectedClasses.length === 0 || spell.classes.some(cls => selectedClasses.includes(cls.name.toLowerCase()));
+                const matchesLevel = selectedLevels.length === 0 || selectedLevels.includes(spell.level);
+                return matchesClass && matchesLevel;
+              });
+
+              displayResults(filtered.map(spell => ({ name: spell.name, index: spell.index })));
+            });
+          } else {
+            // No detailed filtering needed
+            displayResults(results);
+          }
+        });
+    }
+
+    function displayResults(spells) {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '';
+
+      if (spells.length === 0) {
+        resultsDiv.innerHTML = '<p class="text-gray-500">No spells found.</p>';
+        return;
+      }
+
+      spells.forEach(spell => {
+        const div = document.createElement('div');
+        div.className = "bg-white p-4 rounded shadow flex justify-between items-center";
+
+        div.innerHTML = `
+          <div>
+            <p class="font-semibold">${spell.name}</p>
+            <p class="text-sm text-gray-500">${spell.index}</p>
+          </div>
+          <button onclick='bookmarkSpell(${JSON.stringify(spell)})'
+            class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">
+            Bookmark
+          </button>
+        `;
+        resultsDiv.appendChild(div);
+      });
+    }
+
+    function bookmarkSpell(spell) {
+      let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+      if (!bookmarks.find(b => b.index === spell.index)) {
+        bookmarks.push(spell);
+        localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+        displayBookmarks();
+      }
+    }
+
+    function displayBookmarks() {
+      const bookmarksDiv = document.getElementById('bookmarks');
+      bookmarksDiv.innerHTML = '';
+
+      const bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+      bookmarks.forEach(spell => {
+        const div = document.createElement('div');
+        div.className = "bg-yellow-100 p-3 rounded shadow flex justify-between items-center";
+
+        div.innerHTML = `
+          <p class="font-semibold">${spell.name}</p>
+          <button onclick='removeBookmark("${spell.index}")'
+            class="text-red-600 hover:underline text-sm">
+            Remove
+          </button>
+        `;
+        bookmarksDiv.appendChild(div);
+      });
+    }
+
+    function removeBookmark(index) {
+      let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+      bookmarks = bookmarks.filter(b => b.index !== index);
+      localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+      displayBookmarks();
+    }
+
+    // Initialize on page load
+    window.onload = function() {
+      createFilters();
+      displayBookmarks();
+    };
+  </script>
+</body>
+</html>
