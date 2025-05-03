@@ -2,13 +2,6 @@
 // Include axios from CDN
 const axios = window.axios;
 
-// API configuration
-const API_ENDPOINTS = {
-    spells: '/api/spells',
-    monsters: '/api/monsters',
-    // Add other endpoints as needed
-};
-
 // Cache implementation
 const cache = {
     store: {},
@@ -31,23 +24,24 @@ class DnDAPI {
     constructor() {
         this.baseURL = 'https://www.dnd5eapi.co';
         this.cache = cache;
+        this.endpoints = {
+            spells: '/api/spells',
+            monsters: '/api/monsters',
+            classes: '/api/classes',
+            subclasses: '/api/subclasses',
+            races: '/api/races',
+            subraces: '/api/subraces',
+            equipment: '/api/equipment',
+            rules: '/api/rules',
+            'rule-sections': '/api/rule-sections'
+        };
     }
 
-    async fetch(endpoint, params = {}) {
-        const cacheKey = `${endpoint}_${JSON.stringify(params)}`;
-        const cachedData = this.cache.get(cacheKey);
-        
-        if (cachedData) {
-            return cachedData;
-        }
-
+    async fetch(endpoint) {
         try {
-            const response = await axios.get(`${this.baseURL}${API_ENDPOINTS[endpoint]}`, {
-                params
-            });
-            const data = response.data;
-            this.cache.set(cacheKey, data);
-            return data;
+            const response = await axios.get(`${this.baseURL}${this.endpoints[endpoint]}`);
+            this.cache.set(endpoint, response.data);
+            return response.data;
         } catch (error) {
             console.error(`Error fetching ${endpoint}:`, error);
             throw error;
@@ -55,7 +49,14 @@ class DnDAPI {
     }
 
     async fetchById(endpoint, id) {
-        return this.fetch(endpoint, { index: id });
+        try {
+            const response = await axios.get(`${this.baseURL}${this.endpoints[endpoint]}/${id}`);
+            this.cache.set(`${endpoint}_${id}`, response.data);
+            return response.data;
+        } catch (error) {
+            console.error(`Error fetching ${endpoint} by ID:`, error);
+            throw error;
+        }
     }
 
     clearCache() {
