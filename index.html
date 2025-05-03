@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D&D 5e Spell Browser</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+  <header class="bg-indigo-700 text-white p-4 text-center text-2xl font-bold">
+    D&D 5e Spell Browser
+  </header>
+
+  <main class="flex flex-col gap-4 p-4 flex-grow">
+
+    <!-- Search Box -->
+    <div class="flex gap-2">
+      <input id="searchInput" type="text" placeholder="Search spells..."
+        class="flex-grow p-2 rounded border focus:outline-none focus:ring-2 focus:ring-indigo-400">
+      <button onclick="searchSpells()" 
+        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
+        Search
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div id="filters" class="flex flex-wrap gap-2">
+      <!-- Example checkbox: we'll dynamically create these later if you want -->
+    </div>
+
+    <!-- Results Grid -->
+    <section id="results" class="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3"></section>
+
+    <!-- Bookmarks Section -->
+    <section>
+      <h2 class="text-xl font-bold my-4">📚 Bookmarked Spells</h2>
+      <div id="bookmarks" class="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3"></div>
+    </section>
+
+  </main>
+
+  <footer class="bg-gray-200 text-center text-sm p-2">
+    Made with 💬 and 🎲
+  </footer>
+
+  <script>
+    const apiBase = "https://www.dnd5eapi.co/api";
+
+    async function searchSpells() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      const res = await fetch(`${apiBase}/spells`);
+      const data = await res.json();
+
+      let spells = data.results;
+
+      if (query) {
+        spells = spells.filter(spell => spell.name.toLowerCase().includes(query));
+      }
+
+      displayResults(spells);
+    }
+
+    async function displayResults(spells) {
+      const results = document.getElementById('results');
+      results.innerHTML = '';
+
+      for (const spell of spells) {
+        const res = await fetch(`${apiBase}/spells/${spell.index}`);
+        const fullSpell = await res.json();
+
+        const div = document.createElement('div');
+        div.className = "bg-white p-4 rounded shadow hover:shadow-lg transition";
+
+        div.innerHTML = `
+          <h3 class="text-lg font-bold text-indigo-700 mb-2">${fullSpell.name}</h3>
+          <ul class="text-sm text-gray-700 space-y-1">
+            <li><strong>Level:</strong> ${fullSpell.level}</li>
+            <li><strong>Classes:</strong> ${fullSpell.classes.map(c => c.name).join(', ')}</li>
+            <li><strong>Range:</strong> ${fullSpell.range}</li>
+            <li><strong>Casting Time:</strong> ${fullSpell.casting_time}</li>
+            <li><strong>Damage:</strong> ${fullSpell.damage ? formatDamage(fullSpell.damage) : '—'}</li>
+            <li><strong>Save DC:</strong> ${fullSpell.dc ? fullSpell.dc.dc_type.name : '—'}</li>
+            <li><strong>Desc:</strong> ${shorten(fullSpell.desc.join(' '), 120)}</li>
+          </ul>
+          <div class="mt-3 flex gap-2">
+            <button onclick='viewDetails("${fullSpell.index}")'
+              class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 text-xs">
+              View
+            </button>
+            <button onclick='bookmarkSpell(${JSON.stringify({ name: fullSpell.name, index: fullSpell.index })})'
+              class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 text-xs">
+              Bookmark
+            </button>
+          </div>
+        `;
+        results.appendChild(div);
+      }
+    }
+
+    function shorten(text, maxLength) {
+      return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+    }
+
+    function formatDamage(damageObj) {
+      if (damageObj.damage_at_slot_level) {
+        const entries = Object.entries(damageObj.damage_at_slot_level);
+        return entries.map(([level, dmg]) => `${level}: ${dmg}`).join(', ');
+      }
+      return '—';
+    }
+
+    function viewDetails(index) {
+      fetch(`${apiBase}/spells/${index}`)
+        .then(res => res.json())
+        .then(spell => {
+          alert(`
+${spell.name}
+
+Level: ${spell.level}
+Range: ${spell.range}
+Duration: ${spell.duration}
+Casting Time: ${spell.casting_time}
+Components: ${spell.components.join(', ')}
+
+${spell.desc.join('\n\n')}
+          `);
+        });
+    }
+
+    function bookmarkSpell(spell) {
+      let bookmarks = JSON.parse(localStorage.getItem('bookmarkedSpells')) || [];
+      if (!bookmarks.some(b => b.index === spell.index)) {
+        bookmarks.push(spell);
+        localStorage.setItem('bookmarkedSpells', JSON.stringify(bookmarks));
+        loadBookmarks();
+      }
+    }
+
+    function loadBookmarks() {
+      const bookmarks = JSON.parse(localStorage.getItem('bookmarkedSpells')) || [];
+      const container = document.getElementById('bookmarks');
+      container.innerHTML = '';
+
+      bookmarks.forEach(spell => {
+        const div = document.createElement('div');
+        div.className = "bg-white p-4 rounded shadow hover:shadow-lg transition";
+
+        div.innerHTML = `
+          <h3 class="text-lg font-bold text-green-700 mb-2">${spell.name}</h3>
+          <button onclick='viewDetails("${spell.index}")'
+            class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 text-xs">
+            View
+          </button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Load bookmarks immediately on page load
+    window.onload = loadBookmarks;
+  </script>
+
+</body>
+</html>
