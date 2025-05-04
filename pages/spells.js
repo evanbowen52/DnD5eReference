@@ -19,12 +19,22 @@ class SpellsPage {
         try {
             const spells = await this.api.fetch('spells');
             console.log('Spells fetched successfully:', spells);
-            if (!spells || !spells.results) {
-                console.error('Invalid spells data:', spells);
-                this.container.innerHTML = '<div class="alert alert-danger">Error loading spells data</div>';
-                return;
-            }
-            this.renderSpells(spells);
+            
+            // Fetch detailed information for each spell
+            const detailedSpells = await Promise.all(
+                spells.results.map(async (spell) => {
+                    const detailedSpell = await this.api.fetchById('spells', spell.index);
+                    return {
+                        ...spell,
+                        ...detailedSpell
+                    };
+                })
+            );
+            
+            this.renderSpells({
+                count: spells.count,
+                results: detailedSpells
+            });
         } catch (error) {
             console.error('Error loading spells:', error);
             this.container.innerHTML = '<div class="alert alert-danger">Error loading spells</div>';
@@ -39,6 +49,9 @@ class SpellsPage {
             return;
         }
     
+        // Log the first spell to see its structure
+        console.log('First spell data:', spells.results[0]);
+    
         this.container.innerHTML = `
             <div class="mb-4">
                 <input type="text" class="form-control" placeholder="Search spells..." 
@@ -47,6 +60,7 @@ class SpellsPage {
             <h2>Spells (${spells.count})</h2>
             <div class="row" id="spellsList">
                 ${spells.results.map(spell => {
+                    console.log('Processing spell:', spell.name, 'with school:', spell.school);
                     const schoolName = spell.school ? spell.school.name : 'Unknown';
                     return `
                         <div class="col-md-4 mb-4">
