@@ -11,7 +11,65 @@ class SpellsPage {
             document.getElementById('mainContent').appendChild(this.container);
         }
         this.api = new DnDAPI();
+        this.levelFilters = new Set();
+        this.classFilters = new Set();
         console.log('SpellsPage initialized');
+    }
+    
+    handleLevelFilter(event) {
+        const level = parseInt(event.target.value);
+        if (event.target.checked) {
+            this.levelFilters.add(level);
+        } else {
+            this.levelFilters.delete(level);
+        }
+        this.filterSpells();
+    }
+    
+    handleClassFilter(event) {
+        const className = event.target.value;
+        if (event.target.checked) {
+            this.classFilters.add(className);
+        } else {
+            this.classFilters.delete(className);
+        }
+        this.filterSpells();
+    }
+    
+    filterSpells() {
+        const spells = this.allSpells;
+        if (!spells) return;
+    
+        const filteredSpells = spells.results.filter(spell => {
+            // Level filter
+            if (this.levelFilters.size > 0 && !this.levelFilters.has(spell.level)) {
+                return false;
+            }
+            
+            // Class filter
+            if (this.classFilters.size > 0 && spell.classes) {
+                const spellClasses = new Set(spell.classes.map(cls => cls.name));
+                return [...this.classFilters].some(cls => spellClasses.has(cls));
+            }
+    
+            return true;
+        });
+    
+        this.renderSpells({
+            count: filteredSpells.length,
+            results: filteredSpells
+        });
+    }
+    
+    handleSearch(event) {
+        const searchTerm = event.target.value.toLowerCase();
+        const filteredSpells = this.allSpells.results.filter(spell => 
+            spell.name.toLowerCase().includes(searchTerm)
+        );
+        this.renderSpells({
+            count: filteredSpells.length,
+            results: filteredSpells
+        });
     }
 
     async loadSpells() {
@@ -31,10 +89,12 @@ class SpellsPage {
                 })
             );
             
-            this.renderSpells({
+            this.allSpells = {
                 count: spells.count,
                 results: detailedSpells
-            });
+            };
+            
+            this.renderSpells(this.allSpells);
         } catch (error) {
             console.error('Error loading spells:', error);
             this.container.innerHTML = '<div class="alert alert-danger">Error loading spells</div>';
@@ -49,26 +109,69 @@ class SpellsPage {
             return;
         }
     
-        // Log the first spell to see its structure
-        console.log('First spell data:', spells.results[0]);
+        // Get unique classes and levels
+        const classes = new Set();
+        const levels = new Set();
+        spells.results.forEach(spell => {
+            if (spell.classes) {
+                spell.classes.forEach(cls => classes.add(cls.name));
+            }
+            levels.add(spell.level);
+        });
     
         this.container.innerHTML = `
-            <div class="mb-4">
-                <input type="text" class="form-control" placeholder="Search spells..." 
-                       oninput="spellsPage.handleSearch(event)">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" placeholder="Search spells..." 
+                           oninput="spellsPage.handleSearch(event)">
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Level</h6>
+                            ${[...levels].sort((a, b) => a - b).map(level => `
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                           id="level${level}" value="${level}" 
+                                           onchange="spellsPage.handleLevelFilter(event)">
+                                    <label class="form-check-label" for="level${level}">
+                                        Level ${level}
+                                    </label>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Class</h6>
+                            ${[...classes].sort().map(cls => `
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                           id="class${cls.replace(/ /g, '')}" value="${cls}" 
+                                           onchange="spellsPage.handleClassFilter(event)">
+                                    <label class="form-check-label" for="class${cls.replace(/ /g, '')}">
+                                        ${cls}
+                                    </label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
             </div>
             <h2>Spells (${spells.count})</h2>
             <div class="row" id="spellsList">
                 ${spells.results.map(spell => {
-                    console.log('Processing spell:', spell.name, 'with school:', spell.school);
                     const schoolName = spell.school ? spell.school.name : 'Unknown';
+                    const damageType = spell.damage?.damage_type?.name || 'None';
+                    const classesText = spell.classes ? spell.classes.map(cls => cls.name).join(', ') : 'None';
                     return `
                         <div class="col-md-4 mb-4">
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">${spell.name}</h5>
-                                    <p class="card-text">Level: ${spell.level}</p>
-                                    <p class="card-text">School: ${schoolName}</p>
+                                    <p class="card-text"><strong>Level:</strong> ${spell.level}</p>
+                                    <p class="card-text"><strong>School:</strong> ${schoolName}</p>
+                                    <p class="card-text"><strong>Range:</strong> ${spell.range}</p>
+                                    <p class="card-text"><strong>Damage:</strong> ${damageType}</p>
+                                    <p class="card-text"><strong>Classes:</strong> ${classesText}</p>
                                     <button class="btn btn-primary" 
                                             onclick="window.router.navigate('/spells/${spell.index}')">
                                         View Details
@@ -81,7 +184,7 @@ class SpellsPage {
             </div>
         `;
     }
-
+    
     async loadSpellDetails(params) {
         console.log('loadSpellDetails called with params:', params);
         try {
