@@ -156,39 +156,55 @@
     <script src="./pages/rules.js"></script>
     <script src="./pages/rule-sections.js"></script>
     <!-- Add other page scripts here -->
-<script>
-      // Initialize the router with a default route
-      window.router = new Router();
+    <script>
+      console.log('Starting initialization...');
+ 
+      // Initialize all pages
+      window.spellsPage = new SpellsPage();
+      window.classesPage = new ClassesPage();
+      window.monstersPage = new MonstersPage();
+      window.racesPage = new RacesPage();
+      window.subracesPage = new SubracesPage();
+      window.equipmentPage = new EquipmentPage();
+      window.rulesPage = new RulesPage();
+      window.ruleSectionsPage = new RuleSectionsPage();
+      
+      console.log('Pages initialized');
       
       // Add routes for all pages
-      window.router.addRoute('/spells', () => spellsPage.loadSpells());
-      window.router.addRoute('/spells/:id', (params) => spellsPage.loadSpellDetails(params.id));
+      window.router.addRoute('/spells', () => {
+        console.log('Loading spells...');
+        window.spellsPage.loadSpells();
+    });
+    window.router.addRoute('/spells/:id', (params) => {
+        console.log('Loading spell details:', params);
+        window.spellsPage.loadSpellDetails(params);
+    });
+      window.router.addRoute('/classes', () => window.classesPage.loadClasses());
+      window.router.addRoute('/classes/:id', (params) => window.classesPage.loadClassDetails(params));
       
-      window.router.addRoute('/classes', () => classesPage.loadClasses());
-      window.router.addRoute('/classes/:id', (params) => classesPage.loadClassDetails(params.id));
+      window.router.addRoute('/monsters', () => window.monstersPage.loadMonsters());
+      window.router.addRoute('/monsters/:id', (params) => window.monstersPage.loadMonsterDetails(params));
       
-      window.router.addRoute('/monsters', () => monstersPage.loadMonsters());
-      window.router.addRoute('/monsters/:id', (params) => monstersPage.loadMonsterDetails(params.id));
+      window.router.addRoute('/races', () => window.racesPage.loadRaces());
+      window.router.addRoute('/races/:id', (params) => window.racesPage.loadRaceDetails(params));
       
-      window.router.addRoute('/races', () => racesPage.loadRaces());
-      window.router.addRoute('/races/:id', (params) => racesPage.loadRaceDetails(params.id));
+      window.router.addRoute('/subraces', () => window.subracesPage.loadSubraces());
+      window.router.addRoute('/subraces/:id', (params) => window.subracesPage.loadSubraceDetails(params));
       
-      window.router.addRoute('/subraces', () => subracesPage.loadSubraces());
-      window.router.addRoute('/subraces/:id', (params) => subracesPage.loadSubraceDetails(params.id));
+      window.router.addRoute('/equipment', () => window.equipmentPage.loadEquipment());
+      window.router.addRoute('/equipment/:id', (params) => window.equipmentPage.loadEquipmentDetails(params));
       
-      window.router.addRoute('/equipment', () => equipmentPage.loadEquipment());
-      window.router.addRoute('/equipment/:id', (params) => equipmentPage.loadEquipmentDetails(params.id));
+      window.router.addRoute('/rules', () => window.rulesPage.loadRules());
+      window.router.addRoute('/rules/:id', (params) => window.rulesPage.loadRuleDetails(params));
       
-      window.router.addRoute('/rules', () => rulesPage.loadRules());
-      window.router.addRoute('/rules/:id', (params) => rulesPage.loadRuleDetails(params.id));
-      
-      window.router.addRoute('/rule-sections', () => ruleSectionsPage.loadRuleSections());
-      window.router.addRoute('/rule-sections/:id', (params) => ruleSectionsPage.loadRuleSectionDetails(params.id));
-      
-      // Add routes for other pages as needed
+      window.router.addRoute('/rule-sections', () => window.ruleSectionsPage.loadRuleSections());
+      window.router.addRoute('/rule-sections/:id', (params) => window.ruleSectionsPage.loadRuleSectionDetails(params.id));
       
       // Navigate to the default route
+      console.log('Navigating to default route...');
       window.router.navigate('/spells');
+      console.log('Default route navigated');
   </script>
 </body>
 </html>

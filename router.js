@@ -2,48 +2,58 @@
 class Router {
     constructor() {
         this.routes = {};
-        this.currentRoute = '/';
-        this.initialize();
+        console.log('Router constructor called');
     }
 
-    addRoute(path, callback) {
-        this.routes[path] = callback;
+    addRoute(pattern, handler) {
+        console.log('Adding route:', pattern);
+        this.routes[pattern] = handler;
     }
 
     navigate(path) {
-        this.currentRoute = path;
-        this.handleRoute();
+        console.log('Navigating to:', path);
         window.location.hash = path;
+        this.handleRoute();
     }
 
     handleRoute() {
-        const path = window.location.hash.slice(1) || '/';
-        const route = this.routes[path];
+        console.log('Handling route...');
+        const hash = window.location.hash.slice(1) || '/';
+        console.log('Current hash:', hash);
+        
+        const route = Object.keys(this.routes).find(pattern => {
+            const regex = pattern
+                .replace(/:[^\/]+/g, '([^/]+)')
+                .replace(/\/$/, '') + '$';
+            return new RegExp(regex).test(hash);
+        });
 
         if (route) {
-            const params = this.extractParams(path);
-            route(params);
+            console.log('Route found:', route);
+            const handler = this.routes[route];
+            const params = this.extractParams(route, hash);
+            console.log('Route params:', params);
+            handler(params);
         } else {
-            console.warn('No route found for:', path);
+            console.error('No route found for:', hash);
         }
     }
 
-    extractParams(path) {
+    extractParams(pattern, hash) {
+        const regex = pattern
+            .replace(/:[^\/]+/g, '([^/]+)')
+            .replace(/\/$/, '') + '$';
+        const matches = hash.match(new RegExp(regex));
+        if (!matches) return {};
+        
         const params = {};
-        const parts = path.split('/');
-        const lastPart = parts[parts.length - 1];
-
-        if (lastPart.includes(':')) {
-            const [key, value] = lastPart.split(':');
-            params[key] = value;
+        const paramNames = pattern.match(/:[^\/]+/g);
+        if (paramNames) {
+            paramNames.forEach((name, i) => {
+                params[name.slice(1)] = matches[i + 1];
+            });
         }
-
         return params;
-    }
-
-    initialize() {
-        window.addEventListener('hashchange', () => this.handleRoute());
-        this.handleRoute();
     }
 }
 

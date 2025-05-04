@@ -1,14 +1,29 @@
 // pages/spells.js
 class SpellsPage {
     constructor() {
-        this.container = document.getElementById('mainContent');
-        this.sidebar = document.getElementById('sidebarContent');
-        this.api = window.api;
+        console.log('SpellsPage constructor called');
+        this.container = document.getElementById('spells-container');
+        if (!this.container) {
+            console.error('Spells container not found');
+            // Create the container if it doesn't exist
+            this.container = document.createElement('div');
+            this.container.id = 'spells-container';
+            document.getElementById('mainContent').appendChild(this.container);
+        }
+        this.api = new DnDAPI();
+        console.log('SpellsPage initialized');
     }
 
     async loadSpells() {
+        console.log('loadSpells called');
         try {
             const spells = await this.api.fetch('spells');
+            console.log('Spells fetched successfully:', spells);
+            if (!spells || !spells.results) {
+                console.error('Invalid spells data:', spells);
+                this.container.innerHTML = '<div class="alert alert-danger">Error loading spells data</div>';
+                return;
+            }
             this.renderSpells(spells);
         } catch (error) {
             console.error('Error loading spells:', error);
@@ -17,30 +32,47 @@ class SpellsPage {
     }
 
     renderSpells(spells) {
+        console.log('renderSpells called with', spells);
+        if (!spells || !spells.results) {
+            console.error('Invalid spells data:', spells);
+            this.container.innerHTML = '<div class="alert alert-danger">Error loading spells data</div>';
+            return;
+        }
+    
         this.container.innerHTML = `
+            <div class="mb-4">
+                <input type="text" class="form-control" placeholder="Search spells..." 
+                       oninput="spellsPage.handleSearch(event)">
+            </div>
             <h2>Spells (${spells.count})</h2>
-            <div class="row">
-                ${spells.results.map(spell => `
-                    <div class="col-md-4 mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">${spell.name}</h5>
-                                <p class="card-text">Level: ${spell.level}</p>
-                                <p class="card-text">School: ${spell.school?.name}</p>
-                                <button class="btn btn-primary" onclick="window.router.navigate('/spells/${spell.index}')">
-                                    View Details
-                                </button>
+            <div class="row" id="spellsList">
+                ${spells.results.map(spell => {
+                    const schoolName = spell.school ? spell.school.name : 'Unknown';
+                    return `
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">${spell.name}</h5>
+                                    <p class="card-text">Level: ${spell.level}</p>
+                                    <p class="card-text">School: ${schoolName}</p>
+                                    <button class="btn btn-primary" 
+                                            onclick="window.router.navigate('/spells/${spell.index}')">
+                                        View Details
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `).join('')}
+                    `;
+                }).join('')}
             </div>
         `;
     }
 
-    async loadSpellDetails(spellId) {
+    async loadSpellDetails(params) {
+        console.log('loadSpellDetails called with params:', params);
         try {
-            const spell = await this.api.fetchById('spells', spellId);
+            const spell = await this.api.fetchById('spells', params.id);
+            console.log('Spell details loaded:', spell);
             this.renderSpellDetails(spell);
         } catch (error) {
             console.error('Error loading spell details:', error);
@@ -49,22 +81,20 @@ class SpellsPage {
     }
 
     renderSpellDetails(spell) {
+        console.log('renderSpellDetails called');
         this.container.innerHTML = `
             <div class="card">
                 <div class="card-body">
                     <h2 class="card-title">${spell.name}</h2>
-                    <p><strong>Level:</strong> ${spell.level}</p>
-                    <p><strong>School:</strong> ${spell.school?.name}</p>
-                    <p><strong>Casting Time:</strong> ${spell.casting_time}</p>
-                    <p><strong>Range:</strong> ${spell.range}</p>
-                    <p><strong>Components:</strong> ${spell.components.join(', ')}</p>
-                    <p><strong>Duration:</strong> ${spell.duration}</p>
-                    <p><strong>Description:</strong></p>
-                    <div>${spell.description.join('<br>')}</div>
-                    ${spell.higher_level.length > 0 ? `
-                        <p><strong>At Higher Levels:</strong></p>
-                        <div>${spell.higher_level.join('<br>')}</div>
-                    ` : ''}
+                    <p class="card-text"><strong>Level:</strong> ${spell.level}</p>
+                    <p class="card-text"><strong>School:</strong> ${spell.school.name}</p>
+                    <p class="card-text"><strong>Casting Time:</strong> ${spell.casting_time}</p>
+                    <p class="card-text"><strong>Range:</strong> ${spell.range}</p>
+                    <p class="card-text"><strong>Components:</strong> ${spell.components.join(', ')}</p>
+                    <p class="card-text"><strong>Duration:</strong> ${spell.duration}</p>
+                    <h4>Description</h4>
+                    <p>${spell.desc.join('<br>')}</p>
+                    <button class="btn btn-secondary" onclick="window.router.navigate('/spells')">Back to Spells</button>
                 </div>
             </div>
         `;

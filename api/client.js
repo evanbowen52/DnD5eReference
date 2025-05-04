@@ -38,12 +38,13 @@ class DnDAPI {
     }
 
     async fetch(endpoint) {
+        console.log('Fetching:', endpoint);
         try {
-            const response = await axios.get(`${this.baseURL}${this.endpoints[endpoint]}`);
-            this.cache.set(endpoint, response.data);
+            const response = await axios.get(`${this.baseURL}/api/${endpoint}`);
+            console.log('API response:', response.data);
             return response.data;
         } catch (error) {
-            console.error(`Error fetching ${endpoint}:`, error);
+            console.error('API error:', error);
             throw error;
         }
     }
