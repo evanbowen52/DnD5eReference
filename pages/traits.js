@@ -103,9 +103,4 @@ class TraitsPage {
     }
 }
 
-// Initialize the page
-const traitsPage = new TraitsPage();
-
-// Handle navigation
-window.router.addRoute('/traits', () => traitsPage.loadTraits());
-window.router.addRoute('/traits/:id', (params) => traitsPage.loadTraitDetails(params.id));
+window.TraitsPage = TraitsPage;

@@ -125,9 +125,4 @@ class RulesPage {
     }
 }
 
-// Initialize the page
-const rulesPage = new RulesPage();
-
-// Handle navigation
-window.router.addRoute('/rules', () => rulesPage.loadRules());
-window.router.addRoute('/rules/:id', (params) => rulesPage.loadRuleDetails(params.id));
+window.RulesPage = RulesPage;

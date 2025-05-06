@@ -95,9 +95,4 @@ class WeaponPropertiesPage {
     }
 }
 
-// Initialize the page
-const weaponPropertiesPage = new WeaponPropertiesPage();
-
-// Handle navigation
-window.router.addRoute('/weapon-properties', () => weaponPropertiesPage.loadWeaponProperties());
-window.router.addRoute('/weapon-properties/:id', (params) => weaponPropertiesPage.loadWeaponPropertyDetails(params.id));
+window.WeaponPropertiesPage = WeaponPropertiesPage;

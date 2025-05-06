@@ -108,9 +108,4 @@ class SkillsPage {
     }
 }
 
-// Initialize the page
-const skillsPage = new SkillsPage();
-
-// Handle navigation
-window.router.addRoute('/skills', () => skillsPage.loadSkills());
-window.router.addRoute('/skills/:id', (params) => skillsPage.loadSkillDetails(params.id));
+window.SkillsPage = SkillsPage;

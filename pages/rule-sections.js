@@ -125,9 +125,4 @@ class RuleSectionsPage {
     }
 }
 
-// Initialize the page
-const ruleSectionsPage = new RuleSectionsPage();
-
-// Handle navigation
-window.router.addRoute('/rule-sections', () => ruleSectionsPage.loadRuleSections());
-window.router.addRoute('/rule-sections/:id', (params) => ruleSectionsPage.loadRuleSectionDetails(params.id));
+window.RuleSectionsPage = RuleSectionsPage;

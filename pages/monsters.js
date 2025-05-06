@@ -109,9 +109,4 @@ class MonstersPage {
     }
 }
 
-// Initialize the page
-const monstersPage = new MonstersPage();
-
-// Handle navigation
-window.router.addRoute('/monsters', () => monstersPage.loadMonsters());
-window.router.addRoute('/monsters/:id', (params) => monstersPage.loadMonsterDetails(params.id));
+window.MonstersPage = MonstersPage;

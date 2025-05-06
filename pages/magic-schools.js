@@ -93,9 +93,4 @@ class MagicSchoolsPage {
     }
 }
 
-// Initialize the page
-const magicSchoolsPage = new MagicSchoolsPage();
-
-// Handle navigation
-window.router.addRoute('/magic-schools', () => magicSchoolsPage.loadMagicSchools());
-window.router.addRoute('/magic-schools/:id', (params) => magicSchoolsPage.loadMagicSchoolDetails(params.id));
+window.MagicSchoolsPage = MagicSchoolsPage;

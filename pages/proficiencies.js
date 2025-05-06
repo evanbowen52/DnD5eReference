@@ -103,9 +103,4 @@ class ProficienciesPage {
     }
 }
 
-// Initialize the page
-const proficienciesPage = new ProficienciesPage();
-
-// Handle navigation
-window.router.addRoute('/proficiencies', () => proficienciesPage.loadProficiencies());
-window.router.addRoute('/proficiencies/:id', (params) => proficienciesPage.loadProficiencyDetails(params.id));
+window.ProficienciesPage = ProficienciesPage;

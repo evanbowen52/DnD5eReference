@@ -1,0 +1,16 @@
+node_modules/
+.DS_Store
+dist/
+.vscode/
+.env
+
+# Test artifacts
+coverage/
+.nyc_output/
+.cypress/
+cypress/screenshots/
+cypress/videos/
+
+# GitHub Actions
+.gha/
+

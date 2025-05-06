@@ -1,4 +1,5 @@
 // pages/ability-scores.js
+
 class AbilityScoresPage {
     constructor() {
         this.container = document.getElementById('mainContent');
@@ -103,9 +104,4 @@ class AbilityScoresPage {
     }
 }
 
-// Initialize the page
-const abilityScoresPage = new AbilityScoresPage();
-
-// Handle navigation
-window.router.addRoute('/ability-scores', () => abilityScoresPage.loadAbilityScores());
-window.router.addRoute('/ability-scores/:id', (params) => abilityScoresPage.loadAbilityScoreDetails(params.id));
+window.AbilityScoresPage = AbilityScoresPage;

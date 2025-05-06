@@ -83,9 +83,4 @@ class ConditionsPage {
     }
 }
 
-// Initialize the page
-const conditionsPage = new ConditionsPage();
-
-// Handle navigation
-window.router.addRoute('/conditions', () => conditionsPage.loadConditions());
-window.router.addRoute('/conditions/:id', (params) => conditionsPage.loadConditionDetails(params.id));
+window.ConditionsPage = ConditionsPage;

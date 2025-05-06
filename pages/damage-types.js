@@ -83,9 +83,4 @@ class DamageTypesPage {
     }
 }
 
-// Initialize the page
-const damageTypesPage = new DamageTypesPage();
-
-// Handle navigation
-window.router.addRoute('/damage-types', () => damageTypesPage.loadDamageTypes());
-window.router.addRoute('/damage-types/:id', (params) => damageTypesPage.loadDamageTypeDetails(params.id));
+window.DamageTypesPage = DamageTypesPage;

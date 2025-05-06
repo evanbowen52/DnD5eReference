@@ -1,61 +1,82 @@
 // router.js
+
 class Router {
     constructor() {
-        this.routes = {};
         console.log('Router constructor called');
+        this.routes = {};
+        this.initialized = false;
+        this.currentSpellsPage = null;
+        
+        // Initialize hash change listener
+        window.addEventListener('hashchange', () => this.handleRoute());
     }
 
-    addRoute(pattern, handler) {
-        console.log('Adding route:', pattern);
-        this.routes[pattern] = handler;
+    addRoute(path, handler) {
+        this.routes[path] = handler;
+        // Mark as initialized after first route is added
+        if (!this.initialized) {
+            this.initialized = true;
+            this.handleRoute();
+        }
     }
 
     navigate(path) {
-        console.log('Navigating to:', path);
         window.location.hash = path;
-        this.handleRoute();
     }
 
     handleRoute() {
-        console.log('Handling route...');
-        const hash = window.location.hash.slice(1) || '/';
-        console.log('Current hash:', hash);
-        
-        const route = Object.keys(this.routes).find(pattern => {
-            const regex = pattern
-                .replace(/:[^\/]+/g, '([^/]+)')
-                .replace(/\/$/, '') + '$';
-            return new RegExp(regex).test(hash);
-        });
-
-        if (route) {
-            console.log('Route found:', route);
-            const handler = this.routes[route];
-            const params = this.extractParams(route, hash);
-            console.log('Route params:', params);
-            handler(params);
-        } else {
-            console.error('No route found for:', hash);
+        if (!this.initialized) {
+            console.log('Router not initialized yet');
+            return;
         }
+
+        const hash = window.location.hash.slice(1) || '/spells';
+        console.log('Current hash:', hash);
+
+        // Check for exact match first
+        if (this.routes[hash]) {
+            console.log('Route found:', hash);
+            this.routes[hash]();
+            return;
+        }
+
+        // Check for pattern match (for /spells/:id)
+        for (const [pattern, handler] of Object.entries(this.routes)) {
+            if (pattern.includes(':id') && hash.startsWith('/spells/')) {
+                const id = hash.split('/').pop();
+                console.log('Route found:', pattern);
+                if (window.router.currentSpellsPage) {
+                    window.router.currentSpellsPage.loadSpellDetails({ id });
+                } else {
+                    const spellsPage = new window.SpellsPage();
+                    window.router.currentSpellsPage = spellsPage;
+                    spellsPage.loadSpellDetails({ id });
+                }
+                return;
+            }
+        }
+
+        console.log('No route found, showing 404');
+        this.show404();
     }
 
-    extractParams(pattern, hash) {
-        const regex = pattern
-            .replace(/:[^\/]+/g, '([^/]+)')
-            .replace(/\/$/, '') + '$';
-        const matches = hash.match(new RegExp(regex));
-        if (!matches) return {};
-        
-        const params = {};
-        const paramNames = pattern.match(/:[^\/]+/g);
-        if (paramNames) {
-            paramNames.forEach((name, i) => {
-                params[name.slice(1)] = matches[i + 1];
-            });
+    show404() {
+        const container = document.getElementById('mainContent');
+        if (container) {
+            container.innerHTML = `
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6 text-center">
+                            <h1>404 - Page Not Found</h1>
+                            <p class="lead">The page you're looking for doesn't exist.</p>
+                            <a href="#/spells" class="btn btn-primary">Go Home</a>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
-        return params;
     }
 }
 
-// Initialize the router
-window.router = new Router();
+// Export the Router class to the global scope
+window.Router = Router;

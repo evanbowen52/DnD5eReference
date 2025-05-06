@@ -103,9 +103,4 @@ class AlignmentsPage {
     }
 }
 
-// Initialize the page
-const alignmentsPage = new AlignmentsPage();
-
-// Handle navigation
-window.router.addRoute('/alignments', () => alignmentsPage.loadAlignments());
-window.router.addRoute('/alignments/:id', (params) => alignmentsPage.loadAlignmentDetails(params.id));
+window.AlignmentsPage = AlignmentsPage;

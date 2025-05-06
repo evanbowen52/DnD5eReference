@@ -1,0 +1,6 @@
+npx jest tests/unit/example.test.js
+npx jest tests/unit/apiClient.test.js
+npx jest tests/unit/stateManager.test.js
+npx jest tests/integration/spellsPage.test.js
+npx jest tests/performance/navigation.test.js
+npx jest --coverage tests/unit/

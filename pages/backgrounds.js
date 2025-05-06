@@ -130,9 +130,4 @@ class BackgroundsPage {
     }
 }
 
-// Initialize the page
-const backgroundsPage = new BackgroundsPage();
-
-// Handle navigation
-window.router.addRoute('/backgrounds', () => backgroundsPage.loadBackgrounds());
-window.router.addRoute('/backgrounds/:id', (params) => backgroundsPage.loadBackgroundDetails(params.id));
+window.BackgroundsPage = BackgroundsPage;

@@ -93,9 +93,4 @@ class FeatsPage {
     }
 }
 
-// Initialize the page
-const featsPage = new FeatsPage();
-
-// Handle navigation
-window.router.addRoute('/feats', () => featsPage.loadFeats());
-window.router.addRoute('/feats/:id', (params) => featsPage.loadFeatDetails(params.id));
+window.FeatsPage = FeatsPage;

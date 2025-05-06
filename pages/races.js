@@ -99,9 +99,4 @@ class RacesPage {
     }
 }
 
-// Initialize the page
-const racesPage = new RacesPage();
-
-// Handle navigation
-window.router.addRoute('/races', () => racesPage.loadRaces());
-window.router.addRoute('/races/:id', (params) => racesPage.loadRaceDetails(params.id));
+window.RacesPage = RacesPage;

@@ -88,9 +88,4 @@ class SubclassesPage {
     }
 }
 
-// Initialize the page
-const subclassesPage = new SubclassesPage();
-
-// Handle navigation
-window.router.addRoute('/subclasses', () => subclassesPage.loadSubclasses());
-window.router.addRoute('/subclasses/:id', (params) => subclassesPage.loadSubclassDetails(params.id));
+window.SubclassesPage = SubclassesPage;

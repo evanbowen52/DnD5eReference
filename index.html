@@ -4,48 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D&D 5e Reference</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <style>
-        .navbar {
-            margin-bottom: 2rem;
-        }
-        .sidebar {
-            position: fixed;
-            top: 56px;
-            left: 0;
-            height: calc(100vh - 56px);
-            width: 250px;
-            padding: 1rem;
-            background-color: #f8f9fa;
-            border-right: 1px solid #dee2e6;
-        }
-        .main-content {
-            margin-left: 250px;
-            padding: 1rem;
-        }
-        .sidebar-nav {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .sidebar-nav li {
-            margin-bottom: 0.5rem;
-        }
-        .sidebar-nav a {
-            text-decoration: none;
-            color: #000;
-            padding: 0.5rem;
-            display: block;
-            border-radius: 4px;
-        }
-        .sidebar-nav a:hover {
-            background-color: #e9ecef;
-        }
-        .sidebar-nav a.active {
-            background-color: #0d6efd;
-            color: white;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -55,98 +15,89 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="#/spells">Spells</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#/monsters">Monsters</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                        Classes & Races
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#/classes">Classes</a></li>
-                        <li><a class="dropdown-item" href="#/subclasses">Subclasses</a></li>
-                        <li><a class="dropdown-item" href="#/races">Races</a></li>
-                        <li><a class="dropdown-item" href="#/subraces">Subraces</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                        Equipment
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#/equipment">Equipment</a></li>
-                        <li><a class="dropdown-item" href="#/magic-items">Magic Items</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                        Rules
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#/rules">Rules</a></li>
-                        <li><a class="dropdown-item" href="#/rule-sections">Rule Sections</a></li>
-                        <li><a class="dropdown-item" href="#/features">Features</a></li>
-                        <li><a class="dropdown-item" href="#/feats">Feats</a></li>
-                        <li><a class="dropdown-item" href="#/conditions">Conditions</a></li>
-                        <li><a class="dropdown-item" href="#/damage-types">Damage Types</a></li>
-                        <li><a class="dropdown-item" href="#/magic-schools">Magic Schools</a></li>
-                        <li><a class="dropdown-item" href="#/proficiencies">Proficiencies</a></li>
-                        <li><a class="dropdown-item" href="#/skills">Skills</a></li>
-                        <li><a class="dropdown-item" href="#/traits">Traits</a></li>
-                        <li><a class="dropdown-item" href="#/weapon-properties">Weapon Properties</a></li>
-                        <li><a class="dropdown-item" href="#/ability-scores">Ability Scores</a></li>
-                        <li><a class="dropdown-item" href="#/alignments">Alignments</a></li>
-                        <li><a class="dropdown-item" href="#/backgrounds">Backgrounds</a></li>
-                    </ul>
-                </li>
-            </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/spells">Spells</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/classes">Classes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/monsters">Monsters</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/races">Races</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/subraces">Subraces</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/equipment">Equipment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/rules">Rules</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/rule-sections">Rule Sections</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/feats">Feats</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/conditions">Conditions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/damage-types">Damage Types</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/magic-schools">Magic Schools</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/proficiencies">Proficiencies</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/skills">Skills</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/traits">Traits</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/weapon-properties">Weapon Properties</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/ability-scores">Ability Scores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/alignments">Alignments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/backgrounds">Backgrounds</a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
 
-    <div class="sidebar">
-        <h4>Quick Links</h4>
-        <ul class="sidebar-nav">
-          <li><a href="#/spells">Spells</a></li>
-          <li><a href="#/monsters">Monsters</a></li>
-          <li class="nav-header">Classes & Races</li>
-          <li><a href="#/classes">Classes</a></li>
-          <li><a href="#/subclasses">Subclasses</a></li>
-          <li><a href="#/races">Races</a></li>
-          <li><a href="#/subraces">Subraces</a></li>
-          <li class="nav-header">Equipment</li>
-          <li><a href="#/equipment">Equipment</a></li>
-          <li><a href="#/magic-items">Magic Items</a></li>
-          <li class="nav-header">Rules</li>
-          <li><a href="#/rules">Rules</a></li>
-          <li><a href="#/rule-sections">Rule Sections</a></li>
-          <li><a href="#/features">Features</a></li>
-          <li><a href="#/feats">Feats</a></li>
-          <li><a href="#/conditions">Conditions</a></li>
-          <li><a href="#/damage-types">Damage Types</a></li>
-          <li><a href="#/magic-schools">Magic Schools</a></li>
-          <li><a href="#/proficiencies">Proficiencies</a></li>
-          <li><a href="#/skills">Skills</a></li>
-          <li><a href="#/traits">Traits</a></li>
-          <li><a href="#/weapon-properties">Weapon Properties</a></li>
-          <li><a href="#/ability-scores">Ability Scores</a></li>
-          <li><a href="#/alignments">Alignments</a></li>
-          <li><a href="#/backgrounds">Backgrounds</a></li>
-      </ul>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3">
+                <div id="sidebarContent"></div>
+            </div>
+            <div class="col-md-9">
+                <div id="mainContent"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="main-content">
-        <div id="mainContent"></div>
-    </div>
-
+   <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="./api/client.js"></script>
     <script src="./router.js"></script>
+    <!-- Page Scripts -->
     <script src="./pages/spells.js"></script>
     <script src="./pages/classes.js"></script>
     <script src="./pages/monsters.js"></script>
@@ -155,56 +106,81 @@
     <script src="./pages/equipment.js"></script>
     <script src="./pages/rules.js"></script>
     <script src="./pages/rule-sections.js"></script>
-    <!-- Add other page scripts here -->
+    <script src="./pages/features.js"></script>
+    <script src="./pages/feats.js"></script>
+    <script src="./pages/conditions.js"></script>
+    <script src="./pages/damage-types.js"></script>
+    <script src="./pages/magic-schools.js"></script>
+    <script src="./pages/proficiencies.js"></script>
+    <script src="./pages/skills.js"></script>
+    <script src="./pages/traits.js"></script>
+    <script src="./pages/weapon-properties.js"></script>
+    <script src="./pages/ability-scores.js"></script>
+    <script src="./pages/alignments.js"></script>
+    <script src="./pages/backgrounds.js"></script>
     <script>
-      console.log('Starting initialization...');
- 
-      // Initialize all pages
-      window.spellsPage = new SpellsPage();
-      window.classesPage = new ClassesPage();
-      window.monstersPage = new MonstersPage();
-      window.racesPage = new RacesPage();
-      window.subracesPage = new SubracesPage();
-      window.equipmentPage = new EquipmentPage();
-      window.rulesPage = new RulesPage();
-      window.ruleSectionsPage = new RuleSectionsPage();
-      
-      console.log('Pages initialized');
-      
-      // Add routes for all pages
-      window.router.addRoute('/spells', () => {
-        console.log('Loading spells...');
-        window.spellsPage.loadSpells();
-    });
-    window.router.addRoute('/spells/:id', (params) => {
-        console.log('Loading spell details:', params);
-        window.spellsPage.loadSpellDetails(params);
-    });
-      window.router.addRoute('/classes', () => window.classesPage.loadClasses());
-      window.router.addRoute('/classes/:id', (params) => window.classesPage.loadClassDetails(params));
-      
-      window.router.addRoute('/monsters', () => window.monstersPage.loadMonsters());
-      window.router.addRoute('/monsters/:id', (params) => window.monstersPage.loadMonsterDetails(params));
-      
-      window.router.addRoute('/races', () => window.racesPage.loadRaces());
-      window.router.addRoute('/races/:id', (params) => window.racesPage.loadRaceDetails(params));
-      
-      window.router.addRoute('/subraces', () => window.subracesPage.loadSubraces());
-      window.router.addRoute('/subraces/:id', (params) => window.subracesPage.loadSubraceDetails(params));
-      
-      window.router.addRoute('/equipment', () => window.equipmentPage.loadEquipment());
-      window.router.addRoute('/equipment/:id', (params) => window.equipmentPage.loadEquipmentDetails(params));
-      
-      window.router.addRoute('/rules', () => window.rulesPage.loadRules());
-      window.router.addRoute('/rules/:id', (params) => window.rulesPage.loadRuleDetails(params));
-      
-      window.router.addRoute('/rule-sections', () => window.ruleSectionsPage.loadRuleSections());
-      window.router.addRoute('/rule-sections/:id', (params) => window.ruleSectionsPage.loadRuleSectionDetails(params.id));
-      
-      // Navigate to the default route
-      console.log('Navigating to default route...');
-      window.router.navigate('/spells');
-      console.log('Default route navigated');
-  </script>
+        // Initialize API
+        window.api = new window.DnDAPI();
+        
+        // Initialize router and add routes
+        window.router = new window.Router();
+        
+        // Add routes for all pages
+        const routes = [
+            { path: '/spells', method: 'loadSpells', detailMethod: 'loadSpellDetails' },
+            { path: '/classes', method: 'loadClasses', detailMethod: 'loadClassDetails' },
+            { path: '/monsters', method: 'loadMonsters', detailMethod: 'loadMonsterDetails' },
+            { path: '/races', method: 'loadRaces', detailMethod: 'loadRaceDetails' },
+            { path: '/subraces', method: 'loadSubraces', detailMethod: 'loadSubraceDetails' },
+            { path: '/equipment', method: 'loadEquipment', detailMethod: 'loadEquipmentDetails' },
+            { path: '/rules', method: 'loadRules', detailMethod: 'loadRuleDetails' },
+            { path: '/rule-sections', method: 'loadRuleSections', detailMethod: 'loadRuleSectionDetails' },
+            { path: '/features', method: 'loadFeatures', detailMethod: 'loadFeatureDetails' },
+            { path: '/feats', method: 'loadFeats', detailMethod: 'loadFeatDetails' },
+            { path: '/conditions', method: 'loadConditions', detailMethod: 'loadConditionDetails' },
+            { path: '/damage-types', method: 'loadDamageTypes', detailMethod: 'loadDamageTypeDetails' },
+            { path: '/magic-schools', method: 'loadMagicSchools', detailMethod: 'loadMagicSchoolDetails' },
+            { path: '/proficiencies', method: 'loadProficiencies', detailMethod: 'loadProficiencyDetails' },
+            { path: '/skills', method: 'loadSkills', detailMethod: 'loadSkillDetails' },
+            { path: '/traits', method: 'loadTraits', detailMethod: 'loadTraitDetails' },
+            { path: '/weapon-properties', method: 'loadWeaponProperties', detailMethod: 'loadWeaponPropertyDetails' },
+            { path: '/ability-scores', method: 'loadAbilityScores', detailMethod: 'loadAbilityScoreDetails' },
+            { path: '/alignments', method: 'loadAlignments', detailMethod: 'loadAlignmentDetails' },
+            { path: '/backgrounds', method: 'loadBackgrounds', detailMethod: 'loadBackgroundDetails' }
+        ];
+    
+        // Add routes
+        routes.forEach(route => {
+            // Add main page route
+            window.router.addRoute(route.path, () => {
+                const pageName = route.path.substring(1).replace(/-/g, '');
+                const PageClass = window[pageName.charAt(0).toUpperCase() + pageName.slice(1) + 'Page'];
+                const page = new PageClass();
+                window.router[`current${pageName.charAt(0).toUpperCase() + pageName.slice(1)}Page`] = page;
+                page[route.method]();
+            });
+    
+            // Add detail route if detail method exists
+            if (route.detailMethod) {
+                window.router.addRoute(`${route.path}/:id`, (params) => {
+                    const pageName = route.path.substring(1).replace(/-/g, '');
+                    const page = window.router[`current${pageName.charAt(0).toUpperCase() + pageName.slice(1)}Page`];
+                    if (page) {
+                        page[route.detailMethod](params.id);
+                    } else {
+                        const PageClass = window[pageName.charAt(0).toUpperCase() + pageName.slice(1) + 'Page'];
+                        const page = new PageClass();
+                        window.router[`current${pageName.charAt(0).toUpperCase() + pageName.slice(1)}Page`] = page;
+                        page[route.detailMethod](params.id);
+                    }
+                });
+            }
+        });
+    
+        // Initialize the route after adding all routes
+        window.router.handleRoute();
+        
+        console.log('Pages initialized');
+    </script>
 </body>
 </html>

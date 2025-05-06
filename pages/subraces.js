@@ -82,9 +82,4 @@ class SubracesPage {
     }
 }
 
-// Initialize the page
-const subracesPage = new SubracesPage();
-
-// Handle navigation
-window.router.addRoute('/subraces', () => subracesPage.loadSubraces());
-window.router.addRoute('/subraces/:id', (params) => subracesPage.loadSubraceDetails(params.id));
+window.SubracesPage = SubracesPage;

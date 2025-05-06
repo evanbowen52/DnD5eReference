@@ -93,9 +93,5 @@ class EquipmentPage {
     }
 }
 
-// Initialize the page
-const equipmentPage = new EquipmentPage();
 
-// Handle navigation
-window.router.addRoute('/equipment', () => equipmentPage.loadEquipment());
-window.router.addRoute('/equipment/:id', (params) => equipmentPage.loadEquipmentDetails(params.id));
+window.EquipmentPage = EquipmentPage;

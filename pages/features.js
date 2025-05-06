@@ -96,9 +96,4 @@ class FeaturesPage {
     }
 }
 
-// Initialize the page
-const featuresPage = new FeaturesPage();
-
-// Handle navigation
-window.router.addRoute('/features', () => featuresPage.loadFeatures());
-window.router.addRoute('/features/:id', (params) => featuresPage.loadFeatureDetails(params.id));
+window.FeaturesPage = FeaturesPage;
