@@ -1,26 +1,67 @@
 // cypress/e2e/app.cy.js
 describe('D&D 5e Reference App', () => {
-  beforeEach(() => {
-    // Visit the base URL defined in cypress.config.js
-    cy.visit('/');
-  });
+  // Increase the default command timeout for all tests in this file
+  Cypress.config('defaultCommandTimeout', 15000);
 
-  it('successfully loads', () => {
-    // Verify the page loads without errors
-    cy.log('Checking if page loads successfully');
+  beforeEach(() => {
+    // Log the test start
+    cy.log(`Starting test: ${Cypress.currentTest.title}`);
     
-    // Basic assertions
+    // Visit the base URL defined in cypress.config.js
+    // Add retry-ability to the visit command
+    cy.visit('/', {
+      retryOnStatusCodeFailure: true,
+      retryOnNetworkFailure: true,
+      timeout: 30000
+    });
+    
+    // Wait for the page to be fully loaded
     cy.window().should('have.property', 'document');
     cy.document().should('exist');
-    
-    // Verify the page title
+  });
+
+  it('successfully loads the application', () => {
+    // Check the page title
     cy.title().should('include', 'D&D 5e Reference');
     
-    // Add a small wait to ensure page is fully loaded
-    // This is a fallback, Cypress automatically waits for most things
-    cy.wait(500);
+    // Check for the presence of the main app container
+    cy.get('body').should('exist').and('be.visible');
+    
+    // Check for the presence of the navigation
+    cy.get('nav').should('exist').and('be.visible');
+    
+    // Check for the presence of the main content area
+    cy.get('main').should('exist').and('be.visible');
     
     // Log a success message
-    cy.log('Page loaded successfully');
+    cy.log('Application loaded successfully');
+  });
+
+  it('has working navigation', () => {
+    // Check if navigation links are present and clickable
+    const navItems = ['Spells', 'Monsters', 'Equipment', 'Rules'];
+    
+    navItems.forEach((item) => {
+      cy.contains('a', item)
+        .should('exist')
+        .and('be.visible')
+        .click();
+      
+      // Verify the URL changed
+      cy.url().should('include', item.toLowerCase());
+      
+      // Verify the page content updated
+      cy.get('h1').should('contain', item);
+    });
+  });
+
+  afterEach(() => {
+    // Log test completion
+    cy.log(`Completed test: ${Cypress.currentTest.title}`);
+    
+    // Take a screenshot on test failure
+    if (Cypress.currentTest.state === 'failed') {
+      cy.screenshot('test-failure', { capture: 'runner' });
+    }
   });
 });

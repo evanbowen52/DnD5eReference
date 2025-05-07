@@ -20,6 +20,8 @@ jobs:
       
     - name: Run Unit Tests
       run: npm test
+      env:
+        NODE_ENV: test
     
     - name: Run Cypress Tests
       uses: cypress-io/github-action@v5
@@ -30,6 +32,25 @@ jobs:
         browser: chrome
         spec: cypress/e2e/**/*.cy.js
         record: false
+        config: "baseUrl=http://localhost:3000"
       env:
-        PORT: 3000
         NODE_ENV: test
+        # Add any additional environment variables here
+      timeout-minutes: 10
+      continue-on-error: false
+      
+    - name: Upload Screenshots on Failure
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: cypress-screenshots
+        path: cypress/screenshots/**/*.png
+        retention-days: 7
+
+    - name: Upload Videos on Failure
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: cypress-videos
+        path: cypress/videos/**/*.mp4
+        retention-days: 7
