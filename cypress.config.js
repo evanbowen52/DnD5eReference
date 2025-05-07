@@ -15,12 +15,14 @@ export default defineConfig({
     },
     // Better error handling
     setupNodeEvents(on, config) {
+      // Implement node event listeners here
       on('task', {
         log(message) {
           console.log(message);
           return null;
         },
       });
+      return config;
     },
   },
   viewportWidth: 1280,
@@ -28,4 +30,19 @@ export default defineConfig({
   defaultCommandTimeout: 10000,
   requestTimeout: 10000,
   responseTimeout: 30000,
+  chromeWebSecurity: false, // Disable web security for testing
+  // Enable experimental features if needed
+  experimentalStudio: false,
+  experimentalSessionAndOrigin: true,
+  // Configure how many tests should be kept in memory at once
+  numTestsKeptInMemory: 10,
+  // Configure how many screenshots to keep when tests fail
+  trashAssetsBeforeRuns: true,
+  // Configure how many videos to keep
+  videosFolder: 'cypress/videos',
+  screenshotsFolder: 'cypress/screenshots',
+  // Configure environment variables
+  env: {
+    // Add any environment variables here
+  }
 });
