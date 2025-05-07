@@ -37,3 +37,13 @@ git config --global user.name "Your Name"
 git config --global user.email "your.email@example.com"
 git config --global pull.rebase true
 git config --global init.defaultBranch main
+
+
+# Stage the new file
+git add GitPractices.txt
+
+# Commit with a clear message
+git commit -m "docs: add Git practices and workflow documentation"
+
+# Push to GitHub
+git push origin main

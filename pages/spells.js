@@ -1,9 +1,23 @@
 // pages/spells.js
-import { api } from '../api/client.js';
+import { DnDAPI } from '../api/client.js';
 
 class SpellsPage {
-    constructor() {
+    constructor(apiClient) {
         this.container = document.getElementById('mainContent');
+        
+        // If no API client is provided, try to use the global api instance or create a new DnDAPI
+        if (!apiClient) {
+            if (window.api) {
+                this.api = window.api;
+            } else {
+                // This will be mocked in tests
+                const { DnDAPI } = require('../api/client');
+                this.api = new DnDAPI();
+            }
+        } else {
+            this.api = apiClient;
+        }
+        
         this.state = {
             loading: false,
             spells: [],
@@ -17,7 +31,7 @@ class SpellsPage {
         this.renderLoading();
         
         try {
-            const data = await api.fetchList('spells');
+            const data = await this.api.fetchList('spells');
             this.state.spells = data.results || [];
             this.state.filteredSpells = [...this.state.spells];
             this.renderSpells();
@@ -34,7 +48,7 @@ class SpellsPage {
         this.renderLoading();
 
         try {
-            this.state.currentSpell = await api.fetchByIndex('spells', spellIndex);
+            this.state.currentSpell = await this.api.fetchByIndex('spells', spellIndex);
             this.renderSpellDetails();
         } catch (error) {
             console.error('Error loading spell details:', error);
