@@ -18,11 +18,23 @@ jobs:
     - name: Install Dependencies
       run: npm ci
       
-    - name: Run Tests
+    - name: Run Unit Tests
       run: npm test
-      
+    
+    - name: Install Cypress
+      uses: cypress-io/github-action@v5
+      with:
+        install: false
+        start: npm start
+        wait-on: 'http://localhost:8080'
+        runTests: false
+    
     - name: Run Cypress Tests
       uses: cypress-io/github-action@v5
       with:
         start: npm start
         wait-on: 'http://localhost:8080'
+        spec: cypress/e2e/**/*.cy.js
+        record: false
+      env:
+        NODE_ENV: test
