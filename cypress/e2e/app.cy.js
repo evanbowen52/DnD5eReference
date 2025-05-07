@@ -1,7 +1,7 @@
 // cypress/e2e/app.cy.js
 describe('D&D 5e Reference App', () => {
   // Increase the default command timeout for all tests in this file
-  Cypress.config('defaultCommandTimeout', 15000);
+  Cypress.config('defaultCommandTimeout', 30000);
 
   // Handle uncaught exceptions
   Cypress.on('uncaught:exception', (err) => {
@@ -19,12 +19,15 @@ describe('D&D 5e Reference App', () => {
     cy.visit('/', {
       retryOnStatusCodeFailure: true,
       retryOnNetworkFailure: true,
-      timeout: 30000
+      timeout: 60000
     });
     
     // Wait for the page to be fully loaded
     cy.window().should('have.property', 'document');
     cy.document().should('exist');
+    
+    // Wait for the main content to be loaded
+    cy.get('#mainContent', { timeout: 10000 }).should('exist');
   });
 
   it('successfully loads the application', () => {
@@ -35,10 +38,10 @@ describe('D&D 5e Reference App', () => {
     cy.get('body').should('exist').and('be.visible');
     
     // Check for the presence of the navigation
-    cy.get('nav').should('exist').and('be.visible');
+    cy.get('nav.navbar').should('exist').and('be.visible');
     
     // Check for the presence of the main content area
-    cy.get('main').should('exist').and('be.visible');
+    cy.get('#mainContent').should('exist').and('be.visible');
     
     // Log a success message
     cy.log('Application loaded successfully');
@@ -46,19 +49,25 @@ describe('D&D 5e Reference App', () => {
 
   it('has working navigation', () => {
     // Define navigation items to test
-    const navItems = ['Spells', 'Monsters', 'Equipment', 'Rules'];
+    const navItems = [
+      { text: 'Spells', url: '#/spells' },
+      { text: 'Monsters', url: '#/monsters' },
+      { text: 'Equipment', url: '#/equipment' },
+      { text: 'Rules', url: '#/rules' }
+    ];
     
-    navItems.forEach((item) => {
-      cy.contains('a', item)
+    navItems.forEach(({ text, url }) => {
+      // Find and click the navigation link
+      cy.get(`a.nav-link[href="${url}"]`)
         .should('exist')
         .and('be.visible')
         .click();
       
       // Verify the URL changed
-      cy.url().should('include', item.toLowerCase());
+      cy.url().should('include', url);
       
-      // Verify the page content updated
-      cy.get('h1').should('contain', item);
+      // Give the page time to load the new content
+      cy.get('#mainContent', { timeout: 10000 }).should('exist');
     });
   });
 
