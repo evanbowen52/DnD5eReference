@@ -15,19 +15,14 @@ export default defineConfig({
     },
     // Better error handling
     setupNodeEvents(on, config) {
-      // Implement node event listeners here
-      on('uncaught:exception', (err) => {
-        console.error('Uncaught exception:', err);
-        // Return false to prevent the test from failing
-        return false;
-      });
-
+      // Task for logging to the terminal
       on('task', {
         log(message) {
           console.log(message);
           return null;
         },
       });
+
       return config;
     },
   },
@@ -50,5 +45,14 @@ export default defineConfig({
   // Configure environment variables
   env: {
     // Add any environment variables here
-  }
+  },
+  // Global error handling
+  experimentalSessionAndOrigin: false,
+  // Disable video compression for faster test runs
+  videoCompression: false,
+  // Disable automatic screenshots on test failure
+  // (we're handling this in the test files)
+  screenshotOnRunFailure: true,
+  // Disable video recording for now
+  video: false,
 });
